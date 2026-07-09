@@ -25,15 +25,15 @@ module.exports = async (req, res) => {
     const servicesJson = JSON.stringify(Array.isArray(services) ? services : []);
     await db.run(
       `INSERT INTO settings (id, clinic_name, address, phone, email, hours, services, description)
-       VALUES (1, ?, ?, ?, ?, ?, ?, ?)
-       ON CONFLICT(id) DO UPDATE SET
-         clinic_name = excluded.clinic_name,
-         address     = excluded.address,
-         phone       = excluded.phone,
-         email       = excluded.email,
-         hours       = excluded.hours,
-         services    = excluded.services,
-         description = excluded.description`,
+       VALUES (1, $1, $2, $3, $4, $5, $6, $7)
+       ON CONFLICT (id) DO UPDATE SET
+         clinic_name = EXCLUDED.clinic_name,
+         address     = EXCLUDED.address,
+         phone       = EXCLUDED.phone,
+         email       = EXCLUDED.email,
+         hours       = EXCLUDED.hours,
+         services    = EXCLUDED.services,
+         description = EXCLUDED.description`,
       [clinic_name, address ?? '', phone ?? '', email ?? '', hours ?? '', servicesJson, description ?? '']
     );
     return res.json({ ok: true });

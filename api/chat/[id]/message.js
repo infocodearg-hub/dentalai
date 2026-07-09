@@ -13,7 +13,7 @@ module.exports = async (req, res) => {
     return res.status(400).json({ error: 'El campo "content" es requerido.' });
   }
 
-  const conv = await db.get('SELECT id FROM conversations WHERE id = ?', [id]);
+  const conv = await db.get('SELECT id FROM conversations WHERE id = $1', [id]);
   if (!conv) return res.status(404).json({ error: 'Conversación no encontrada.' });
 
   try {
