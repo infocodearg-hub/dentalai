@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "npm install --prefix frontend && npm run build --prefix frontend"
+    "build": "npm install --prefix frontend && npm run build --prefix frontend && cp -r frontend/dist dist"
   },
   "dependencies": {
     "pg": "^8.12.0",
