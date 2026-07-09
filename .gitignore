@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+
+# Environment (sensitive!)
+backend/.env
+
+# Database (datos locales, no va al repo)
+backend/data/
+
+# Frontend build
+frontend/dist/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
