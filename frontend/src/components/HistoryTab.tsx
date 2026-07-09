@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
-import { getHistory } from '../api';
+import { Trash2 } from 'lucide-react';
+import { getHistory, clearHistory } from '../api';
 import type { HistoryMessage } from '../types';
 
 export default function HistoryTab() {
   const [messages, setMessages] = useState<HistoryMessage[]>([]);
+  const [confirming, setConfirming] = useState(false);
 
   useEffect(() => {
     const load = () => getHistory().then(setMessages).catch(() => {});
@@ -12,9 +14,33 @@ export default function HistoryTab() {
     return () => clearInterval(t);
   }, []);
 
+  async function handleClear() {
+    if (!confirming) { setConfirming(true); return; }
+    await clearHistory();
+    setMessages([]);
+    setConfirming(false);
+    localStorage.removeItem('dentalai_conversation');
+  }
+
   return (
     <div className="p-4 sm:p-6 overflow-y-auto scrollbar-thin h-full">
-      <h2 className="text-lg sm:text-xl font-bold text-slate-800 mb-0.5">Historial de mensajes</h2>
+      <div className="flex items-start justify-between mb-0.5">
+        <h2 className="text-lg sm:text-xl font-bold text-slate-800">Historial de mensajes</h2>
+        {messages.length > 0 && (
+          <button
+            onClick={handleClear}
+            onBlur={() => setConfirming(false)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-colors shrink-0 ${
+              confirming
+                ? 'bg-red-500 text-white'
+                : 'bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-500'
+            }`}
+          >
+            <Trash2 size={13} />
+            {confirming ? '¿Confirmar?' : 'Borrar todo'}
+          </button>
+        )}
+      </div>
       <p className="text-xs sm:text-sm text-slate-400 mb-4 sm:mb-6">Se actualiza automáticamente cada pocos segundos.</p>
       <div className="space-y-2">
         {messages.length === 0 && <p className="text-slate-400 text-sm">Todavía no hay mensajes.</p>}

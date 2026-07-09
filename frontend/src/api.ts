@@ -27,6 +27,10 @@ export async function getHistory(): Promise<HistoryMessage[]> {
   return data.messages;
 }
 
+export async function clearHistory(): Promise<void> {
+  await api.delete('/history');
+}
+
 export async function getAppointments(): Promise<Appointment[]> {
   const { data } = await api.get('/appointments');
   return data.appointments;
