@@ -3,8 +3,10 @@ node_modules/
 
 # Environment (sensitive!)
 backend/.env
+.env
+.env.local
 
-# Database (datos locales, no va al repo)
+# Database local
 backend/data/
 
 # Frontend build
