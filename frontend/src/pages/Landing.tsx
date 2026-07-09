@@ -14,8 +14,7 @@ export default function Landing() {
     <div className="min-h-screen bg-gradient-to-b from-brand-50 to-white">
       <header className="flex items-center justify-between px-5 py-4 max-w-6xl mx-auto">
         <div className="flex items-center gap-2">
-          <span className="text-2xl">🦷</span>
-          <span className="font-extrabold text-lg text-brand-700">DentalAI</span>
+          <img src="/logo.svg" alt="codearg" className="h-7 w-auto" />
         </div>
         <Link
           to="/panel"
