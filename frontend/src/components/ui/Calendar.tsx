@@ -4,7 +4,13 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 const DIAS = ['Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa', 'Do'];
 
-export default function Calendar({ markedDates }: { markedDates: Set<string> }) {
+interface Props {
+  markedDates: Set<string>;
+  selectedDate: string | null;
+  onSelectDate: (iso: string | null) => void;
+}
+
+export default function Calendar({ markedDates, selectedDate, onSelectDate }: Props) {
   const [cursor, setCursor] = useState(() => {
     const d = new Date();
     return new Date(d.getFullYear(), d.getMonth(), 1);
@@ -12,7 +18,7 @@ export default function Calendar({ markedDates }: { markedDates: Set<string> }) 
 
   const year = cursor.getFullYear();
   const month = cursor.getMonth();
-  const firstDay = (new Date(year, month, 1).getDay() + 6) % 7; // lunes = 0
+  const firstDay = (new Date(year, month, 1).getDay() + 6) % 7;
   const daysInMonth = new Date(year, month + 1, 0).getDate();
 
   const cells: (number | null)[] = [];
@@ -40,19 +46,33 @@ export default function Calendar({ markedDates }: { markedDates: Set<string> }) 
           if (d === null) return <div key={i} />;
           const iso = `${year}-${pad(month + 1)}-${pad(d)}`;
           const marked = markedDates.has(iso);
+          const selected = selectedDate === iso;
           return (
-            <div
+            <button
               key={i}
-              className={`aspect-square flex items-center justify-center text-sm rounded-lg relative ${
-                marked ? 'bg-brand-600 text-white font-semibold' : 'text-slate-600 hover:bg-slate-50'
+              onClick={() => onSelectDate(selected ? null : iso)}
+              className={`aspect-square flex items-center justify-center text-sm rounded-lg relative transition-colors ${
+                selected
+                  ? 'bg-brand-700 text-white font-bold ring-2 ring-brand-400 ring-offset-1'
+                  : marked
+                  ? 'bg-brand-600 text-white font-semibold hover:bg-brand-700'
+                  : 'text-slate-600 hover:bg-slate-100'
               }`}
             >
               {d}
-              {marked && <span className="absolute bottom-1 w-1 h-1 rounded-full bg-white/80" />}
-            </div>
+              {marked && !selected && <span className="absolute bottom-1 w-1 h-1 rounded-full bg-white/80" />}
+            </button>
           );
         })}
       </div>
+      {selectedDate && (
+        <button
+          onClick={() => onSelectDate(null)}
+          className="mt-3 w-full text-xs text-slate-400 hover:text-slate-600 text-center"
+        >
+          Ver todos los turnos
+        </button>
+      )}
     </div>
   );
 }

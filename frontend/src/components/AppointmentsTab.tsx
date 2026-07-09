@@ -4,6 +4,8 @@ import Calendar from './ui/Calendar';
 import { getAppointments } from '../api';
 import type { Appointment } from '../types';
 
+const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+
 const ESTADO_STYLE: Record<string, string> = {
   activo:    'bg-green-100 text-green-700',
   cancelado: 'bg-red-100 text-red-600',
@@ -31,6 +33,7 @@ function Card({ a }: { a: Appointment }) {
 export default function AppointmentsTab() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [view, setView] = useState<'calendar' | 'list'>('calendar');
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   useEffect(() => {
     getAppointments().then(setAppointments).catch(() => {});
@@ -40,8 +43,22 @@ export default function AppointmentsTab() {
     () => new Set(appointments.filter((a) => a.status === 'activo').map((a) => a.date)),
     [appointments]
   );
+
   const activos = appointments.filter((a) => a.status === 'activo');
   const otros   = appointments.filter((a) => a.status !== 'activo');
+
+  // Turnos del día seleccionado (todos los estados)
+  const byDay = selectedDate
+    ? appointments.filter((a) => a.date === selectedDate)
+    : null;
+
+  // Label legible del día seleccionado
+  const dayLabel = selectedDate
+    ? (() => {
+        const d = new Date(selectedDate + 'T00:00:00');
+        return `${d.getDate()} de ${MESES[d.getMonth()]}`;
+      })()
+    : null;
 
   return (
     <div className="p-4 sm:p-6 overflow-y-auto scrollbar-thin h-full">
@@ -49,7 +66,7 @@ export default function AppointmentsTab() {
         <h2 className="text-lg sm:text-xl font-bold text-slate-800">Turnos</h2>
         <div className="flex bg-slate-100 rounded-xl p-1">
           <button
-            onClick={() => setView('calendar')}
+            onClick={() => { setView('calendar'); setSelectedDate(null); }}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium ${
               view === 'calendar' ? 'bg-white shadow-sm text-brand-700' : 'text-slate-500'
             }`}
@@ -57,7 +74,7 @@ export default function AppointmentsTab() {
             <CalendarDays size={14} /> <span className="hidden sm:inline">Calendario</span>
           </button>
           <button
-            onClick={() => setView('list')}
+            onClick={() => { setView('list'); setSelectedDate(null); }}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium ${
               view === 'list' ? 'bg-white shadow-sm text-brand-700' : 'text-slate-500'
             }`}
@@ -69,11 +86,34 @@ export default function AppointmentsTab() {
 
       {view === 'calendar' ? (
         <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
-          <Calendar markedDates={marked} />
+          <Calendar
+            markedDates={marked}
+            selectedDate={selectedDate}
+            onSelectDate={setSelectedDate}
+          />
+
           <div className="space-y-2">
-            <h3 className="text-xs sm:text-sm font-semibold text-slate-500 mb-2">Próximos turnos activos</h3>
-            {activos.length === 0 && <p className="text-slate-400 text-sm">No hay turnos activos.</p>}
-            {activos.map((a) => <Card key={a.id} a={a} />)}
+            {byDay ? (
+              <>
+                <h3 className="text-xs sm:text-sm font-semibold text-slate-500 mb-2">
+                  Turnos del {dayLabel}
+                </h3>
+                {byDay.length === 0
+                  ? <p className="text-slate-400 text-sm">No hay turnos para este día.</p>
+                  : byDay.map((a) => <Card key={a.id} a={a} />)
+                }
+              </>
+            ) : (
+              <>
+                <h3 className="text-xs sm:text-sm font-semibold text-slate-500 mb-2">
+                  Próximos turnos activos
+                </h3>
+                {activos.length === 0
+                  ? <p className="text-slate-400 text-sm">No hay turnos activos.</p>
+                  : activos.map((a) => <Card key={a.id} a={a} />)
+                }
+              </>
+            )}
           </div>
         </div>
       ) : (
